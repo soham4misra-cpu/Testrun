@@ -5,6 +5,8 @@ pygame.mixer.init()
 screen = pygame.display.set_mode((1000,800))
 pygame.display.set_caption("Python game")
 clock = pygame.time.Clock()
+start_ticks = pygame.time.get_ticks()
+small_font = pygame.font.Font(None, 40)
 background_img = pygame.image.load('images/Background.jpg').convert()
 background_img = pygame.transform.scale(background_img, (1000,800))
 
@@ -29,6 +31,7 @@ def reset_game():
     player_pos = Vector2(400,300)
     enemy_pos = Vector2(100,100)
     game_over = False
+    start_ticks = pygame.time.get_ticks
 
 running = True
 
@@ -75,9 +78,13 @@ while running:
         print("gameover")
         game_over = True
 
+    
     screen.blit(background_img, (0,0))
     screen.blit(player_img, player_rect)
     screen.blit(enemy_img, enemy_rect)
+    elapsed_seconds = (pygame.time.get_ticks() - start_ticks) // 1000
+    timer_text = small_font.render(f"time: {elapsed_seconds} ", True, (255, 255, 255))
+    screen.blit(timer_text, (20, 20))
 
     if game_over:
         text = font.render("Game Over, R to Reset", True, (255, 255, 255))
