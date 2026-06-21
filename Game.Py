@@ -28,11 +28,12 @@ font = pygame.font.Font(None, 60)
 game_over = False
 
 def reset_game():
-    global player_pos, enemy_pos, game_over
+    global player_pos, enemy_pos, game_over, start_ticks, elapsed_seconds
     player_pos = Vector2(400,300)
     enemy_pos = Vector2(100,100)
     game_over = False
-    start_ticks = pygame.time.get_ticks
+    start_ticks = pygame.time.get_ticks()
+    elapsed_seconds = 0
 
 running = True
 
@@ -69,6 +70,7 @@ while running:
         if distance > 0:
             direction.normalize_ip()
             enemy_pos += direction * enemy_speed
+        elapsed_seconds = (pygame.time.get_ticks() - start_ticks) // 1000
     
     player_rect = player_img.get_rect(topleft=(player_pos.x,player_pos.y))
     enemy_rect = enemy_img.get_rect(topleft=(enemy_pos.x,enemy_pos.y))
@@ -83,8 +85,7 @@ while running:
     screen.blit(background_img, (0,0))
     screen.blit(player_img, player_rect)
     screen.blit(enemy_img, enemy_rect)
-    if not game_over:
-        elapsed_seconds = (pygame.time.get_ticks() - start_ticks) // 1000
+        
 
     timer_text = small_font.render(f"time: {elapsed_seconds} ", True, (255, 255, 255))
     screen.blit(timer_text, (20, 20))
