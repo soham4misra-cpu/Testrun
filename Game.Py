@@ -12,6 +12,7 @@ background_img = pygame.transform.scale(background_img, (1000,800))
 
 player_img = pygame.image.load('images/Running_Placeholder.png').convert_alpha()
 enemy_img = pygame.image.load('images/Ghost_Enemy.png').convert_alpha()
+elapsed_seconds = 0
 
 pygame.mixer.music.load('audios/Backgroundmusic.mp3')
 pygame.mixer.music.set_volume(0.5)
@@ -82,7 +83,9 @@ while running:
     screen.blit(background_img, (0,0))
     screen.blit(player_img, player_rect)
     screen.blit(enemy_img, enemy_rect)
-    elapsed_seconds = (pygame.time.get_ticks() - start_ticks) // 1000
+    if not game_over:
+        elapsed_seconds = (pygame.time.get_ticks() - start_ticks) // 1000
+
     timer_text = small_font.render(f"time: {elapsed_seconds} ", True, (255, 255, 255))
     screen.blit(timer_text, (20, 20))
 
