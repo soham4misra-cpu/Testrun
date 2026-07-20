@@ -14,6 +14,8 @@ menu_font = pygame.font.Font(None, 60)
 game_state = "menu"
 background_img = pygame.image.load('images/Background.jpg').convert()
 background_img = pygame.transform.scale(background_img, (1000,800))
+menu_img = pygame.image.load('images/Title_Screen.jpg').convert()
+menu_img = pygame.transform.scale(menu_img, (1000,800))
 
 player_img = pygame.image.load('images/Running_Placeholder.png').convert_alpha()
 enemy_img = pygame.image.load('images/Ghost_Enemy.png').convert_alpha()
@@ -38,7 +40,7 @@ start_button = Button(
     text_input = "START",
     font = menu_font,
     base_color = "White",
-    hovering_color = "Green"
+    hovering_color = (0, 0, 139)
 )
 
 options_button = Button(
@@ -47,7 +49,7 @@ options_button = Button(
     text_input = "OPTIONS",
     font = menu_font,
     base_color = "White",
-    hovering_color = "Green"
+    hovering_color = (0, 0, 139)
 )
 
 credits_button = Button(
@@ -56,7 +58,7 @@ credits_button = Button(
     text_input = "CREDITS",
     font = menu_font,
     base_color = "White",
-    hovering_color = "Green"
+    hovering_color = (0, 0, 139)
 )
 
 back_button = Button(
@@ -65,12 +67,27 @@ back_button = Button(
     text_input = "BACK",
     font = menu_font,
     base_color = "White",
-    hovering_color = "Green"
+    hovering_color = (0, 0, 139)
 )
-
-
+music_volume = 0.5
+volumeUP_button = Button(
+    image = None, 
+    pos = (600, 480),
+    text_input = "+",
+    font = menu_font,
+    base_color = "White",
+    hovering_color = (0, 0, 139)
+)
+volumeDOWN_button = Button(
+    image = None, 
+    pos = (400, 480),
+    text_input = "-",
+    font = menu_font,
+    base_color = "White",
+    hovering_color = (0, 0, 139)
+)
 def reset_game():
-    global player_pos, enemy_pos, game_over, start_ticks, elapsed_seconds
+    global player_pos, enemy_pos, game_over, start_ticks, elapsed_seconds, game_state
     player_pos = Vector2(400,300)
     enemy_pos = Vector2(100,100)
     game_over = False
@@ -95,7 +112,16 @@ while running:
                     game_state = "options"
                 elif credits_button.checkForInput(mouse_pos):
                     game_state = "credits"
-            elif game_state == "options" or game_state == "credits" or game_state == "game_over":
+            elif game_state == "options":
+                if volumeUP_button.checkForInput(mouse_pos):
+                    music_volume = min(1.0, music_volume + 0.1)
+                    pygame.mixer.music.set_volume(music_volume)
+                elif volumeDOWN_button.checkForInput(mouse_pos):
+                    music_volume = min(0.0, music_volume - 0.1)
+                    pygame.mixer.music.set_volume(music_volume)
+                elif back_button.checkForInput(mouse_pos):
+                    game_state = "menu"  
+            elif game_state == "credits" or game_state == "game_over":
                 if back_button.checkForInput(mouse_pos):
                     game_state = "menu"
         elif event.type == pygame.KEYDOWN:
@@ -139,10 +165,7 @@ while running:
             game_over = True
             game_state = "game_over"
     if game_state == "menu":
-        screen.blit(background_img, (0,0))
-        menu_text = title_font.render("MAIN MENU", True, (255, 255, 255))
-        menu_rect = menu_text.get_rect(center = (500, 140))
-        screen.blit(menu_text, menu_rect)
+        screen.blit(menu_img, (0,0))
         for button in [start_button, options_button, credits_button]:
             button.changeColor(mouse_pos)
             button.update(screen)
@@ -150,11 +173,20 @@ while running:
         screen.blit(background_img, (0,0))
         options_text = title_font.render("OPTIONS", True, (255, 255, 255))
         options_rect = options_text.get_rect(center = (500, 140))
-        screen.blit(options_text, options_rect)
-        info1 = menu_font.render("INFO", True, (255, 255, 255))
-        info2 = menu_font.render("INFO2", True, (255, 255, 255))
-        screen.blit(info1, (220, 320))
-        screen.blit(info2, (190, 390))
+        volume_label = menu_font.render("MUSIC VOLUME", True, (255, 255, 255))
+        screen.blit(volume_label, (330, 320))
+        volume_percent = menu_font.render(f"{int(music_volume * 100)}%", True, (255, 255, 255))
+        volume_rect = volume_percent.get_rect(center = (500, 480))
+        screen.blit(volume_percent, volume_rect)
+        #screen.blit(options_text, options_rect)
+        #info1 = menu_font.render("INFO", True, (255, 255, 255))
+        #info2 = menu_font.render("INFO2", True, (255, 255, 255))
+        #screen.blit(info1, (220, 320))
+       # screen.blit(info2, (190, 390))
+        volumeUP_button.changeColor(mouse_pos)
+        volumeUP_button.update(screen)
+        volumeDOWN_button.changeColor(mouse_pos)
+        volumeDOWN_button.update(screen)
         back_button.changeColor(mouse_pos)
         back_button.update(screen)
 
