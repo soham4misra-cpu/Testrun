@@ -4,7 +4,7 @@ from pygame.math import Vector2
 
 
 class Player:
-    def __init__(self, image, pos, speed, max_hp=None):
+    def __init__(self, image, pos, speed, max_hp=None, starting_ammo=None, max_ammo=None):
         self.image = image
         self.pos = Vector2(pos)
         self.base_speed = speed
@@ -14,6 +14,9 @@ class Player:
         self.max_hp = max_hp
         self.hp = max_hp
         self.invulnerable_until_ticks = 0
+        self.starting_ammo = starting_ammo
+        self.max_ammo = max_ammo
+        self.ammo = starting_ammo
 
     @property
     def rect(self):
@@ -64,6 +67,17 @@ class Player:
         self.invulnerable_until_ticks = now_ticks + invulnerability_ms
         return self.hp <= 0
 
+    def has_ammo(self):
+        return self.max_ammo is None or self.ammo > 0
+
+    def consume_ammo(self):
+        if self.max_ammo is not None:
+            self.ammo -= 1
+
+    def add_ammo(self, amount):
+        if self.max_ammo is not None:
+            self.ammo = min(self.max_ammo, self.ammo + amount)
+
     def reset(self, pos):
         self.pos = Vector2(pos)
         self.speed = self.base_speed
@@ -71,6 +85,7 @@ class Player:
         self.speed_boost_end_ticks = 0
         self.hp = self.max_hp
         self.invulnerable_until_ticks = 0
+        self.ammo = self.starting_ammo
 
     def draw(self, screen):
         screen.blit(self.image, self.pos)
@@ -80,7 +95,9 @@ class Enemy:
     def __init__(self, image, pos, speed, max_health=None):
         self.image = image
         self.pos = Vector2(pos)
+        self.base_speed = speed
         self.speed = speed
+        self.base_max_health = max_health
         self.max_health = max_health
         self.health = max_health
         self.active = True
@@ -115,6 +132,8 @@ class Enemy:
 
     def reset(self, pos):
         self.pos = Vector2(pos)
+        self.speed = self.base_speed
+        self.max_health = self.base_max_health
         self.health = self.max_health
         self.active = True
         self.respawn_at_ticks = 0
@@ -152,7 +171,7 @@ class Bullet:
         pygame.draw.circle(screen, self.color, (int(self.pos.x), int(self.pos.y)), self.radius)
 
 
-class SpeedBoostPickup:
+class Pickup:
     def __init__(self, image, spawn_interval_ms):
         self.image = image
         self.spawn_interval_ms = spawn_interval_ms
@@ -182,3 +201,13 @@ class SpeedBoostPickup:
     def draw(self, screen):
         if self.pos is not None:
             screen.blit(self.image, self.pos)
+
+
+class SpeedBoostPickup(Pickup):
+    pass
+
+
+class AmmoPickup(Pickup):
+    def __init__(self, image, spawn_interval_ms, amount):
+        super().__init__(image, spawn_interval_ms)
+        self.amount = amount
