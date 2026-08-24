@@ -1,0 +1,13 @@
+.venv/
+.venv-1/
+__pycache__/
+*.pyc
+
+# PyInstaller (main.spec is tracked, it's the packaging config)
+build/
+dist/
+
+# pygbag web build (regenerate with ./build_web.sh)
+web_build/
+
+.DS_Store

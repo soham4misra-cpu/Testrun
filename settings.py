@@ -1,12 +1,53 @@
+import os
+import sys
+
+import pygame
+
+
+def _asset_path(relative_path):
+    # PyInstaller extracts bundled data files to sys._MEIPASS at runtime,
+    # which is not the process's working directory. Resolve every asset
+    # relative to that (or this file's own directory when running from
+    # source) instead of relying on cwd.
+    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
+
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 800
 FPS = 60
 
-WHITE = (255, 255, 255)
-YELLOW = (255, 255, 0)
-NAVY = (0, 0, 139)
-GREEN = (60, 200, 60)
-RED = (220, 60, 60)
+# --- Fonts ---
+# match_font() does a system font-directory scan, which doesn't exist in the
+# browser/WASM sandbox (pygbag) and hangs there. Impact is rarely present on
+# non-Mac systems anyway, so this was already falling back to the pygame
+# default font (None) for most desktop players.
+FONT_NAME = "impact"
+FONT_PATH = None if sys.platform == "emscripten" else pygame.font.match_font(FONT_NAME)
+
+# --- Modern UI palette ---
+BG_DARK = (10, 13, 20)
+PANEL_BG = (18, 22, 34, 218)
+PANEL_BG_SOFT = (18, 22, 34, 150)
+PANEL_BORDER = (58, 70, 96)
+ACCENT = (72, 214, 255)
+ACCENT_DIM = (34, 110, 140)
+TEXT_PRIMARY = (240, 244, 250)
+TEXT_MUTED = (150, 162, 185)
+SUCCESS = (86, 224, 140)
+DANGER = (240, 90, 96)
+WARNING = (255, 200, 70)
+
+PANEL_RADIUS = 18
+BUTTON_RADIUS = 14
+HUD_RADIUS = 16
+
+# Legacy aliases used across draw code
+WHITE = TEXT_PRIMARY
+YELLOW = WARNING
+NAVY = ACCENT
+GREEN = SUCCESS
+RED = DANGER
 
 DEFAULT_MUSIC_VOLUME = 0.5
 
@@ -49,9 +90,9 @@ AMMO_ICON_SIZE = (24, 24)
 AMMO_ICON_COLOR = (255, 215, 0)
 AMMO_ICON_BORDER_COLOR = (120, 90, 10)
 
-BACKGROUND_IMG_PATH = "images/Background.jpg"
-MENU_IMG_PATH = "images/Title_Screen.jpg"
-PLAYER_IMG_PATH = "images/Running_Placeholder.png"
-ENEMY_IMG_PATH = "images/Ghost_Enemy.png"
-SPEEDUP_IMG_PATH = "images/Speed_Up.jpg"
-MUSIC_PATH = "audios/Backgroundmusic.mp3"
+BACKGROUND_IMG_PATH = _asset_path("images/Background.jpg")
+MENU_IMG_PATH = _asset_path("images/Title_Screen.jpg")
+PLAYER_IMG_PATH = _asset_path("images/Running_Placeholder.png")
+ENEMY_IMG_PATH = _asset_path("images/Ghost_Enemy.png")
+SPEEDUP_IMG_PATH = _asset_path("images/Speed_Up.jpg")
+MUSIC_PATH = _asset_path("audios/Backgroundmusic.ogg")

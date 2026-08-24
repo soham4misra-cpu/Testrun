@@ -1,11 +1,13 @@
 import pygame
 import random
-from pygame.math import Vector2
+from pygame import Vector2
 
 
 class Player:
     def __init__(self, image, pos, speed, max_hp=None, starting_ammo=None, max_ammo=None):
         self.image = image
+        self.flipped_image = pygame.transform.flip(image, True, False)
+        self.facing_left = False
         self.pos = Vector2(pos)
         self.base_speed = speed
         self.speed = speed
@@ -31,8 +33,10 @@ class Player:
     def handle_input(self, keys):
         if keys[pygame.K_LEFT]:
             self.pos.x -= self.speed
+            self.facing_left = True
         if keys[pygame.K_RIGHT]:
             self.pos.x += self.speed
+            self.facing_left = False
         if keys[pygame.K_UP]:
             self.pos.y -= self.speed
         if keys[pygame.K_DOWN]:
@@ -80,6 +84,7 @@ class Player:
 
     def reset(self, pos):
         self.pos = Vector2(pos)
+        self.facing_left = False
         self.speed = self.base_speed
         self.speed_boost_active = False
         self.speed_boost_end_ticks = 0
@@ -88,12 +93,15 @@ class Player:
         self.ammo = self.starting_ammo
 
     def draw(self, screen):
-        screen.blit(self.image, self.pos)
+        image = self.flipped_image if self.facing_left else self.image
+        screen.blit(image, self.pos)
 
 
 class Enemy:
     def __init__(self, image, pos, speed, max_health=None):
         self.image = image
+        self.flipped_image = pygame.transform.flip(image, True, False)
+        self.facing_left = False
         self.pos = Vector2(pos)
         self.base_speed = speed
         self.speed = speed
@@ -114,6 +122,10 @@ class Enemy:
         if direction.length() > 0:
             direction.normalize_ip()
             self.pos += direction * self.speed
+            if direction.x < 0:
+                self.facing_left = True
+            elif direction.x > 0:
+                self.facing_left = False
 
     def take_hit(self):
         self.health -= 1
@@ -132,6 +144,7 @@ class Enemy:
 
     def reset(self, pos):
         self.pos = Vector2(pos)
+        self.facing_left = False
         self.speed = self.base_speed
         self.max_health = self.base_max_health
         self.health = self.max_health
@@ -139,7 +152,8 @@ class Enemy:
         self.respawn_at_ticks = 0
 
     def draw(self, screen):
-        screen.blit(self.image, self.pos)
+        image = self.flipped_image if self.facing_left else self.image
+        screen.blit(image, self.pos)
 
 
 class Bullet:
