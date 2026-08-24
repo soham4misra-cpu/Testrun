@@ -14,7 +14,10 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    # macos-latest is Apple Silicon (arm64); pinned to macos-13 (Intel) so
+    # the built app runs on x86_64 Macs too, since arm64 binaries can't run
+    # on Intel Macs at all (no Rosetta path in that direction).
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
 
